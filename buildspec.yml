@@ -2,22 +2,32 @@ version: 0.2
 
 phases:
   install:
+    runtime-versions:
+      python: 3.x  # Optional: Use if you need Python; adjust accordingly
     commands:
-      - echo Installing dependencies...
-      - curl -sLO https://releases.hashicorp.com/terraform/1.6.0/terraform_1.6.0_linux_amd64.zip
-      - unzip terraform_1.6.0_linux_amd64.zip -d /usr/local/bin/
+      - echo "Installing Terraform"
+      - curl -o terraform.zip https://releases.hashicorp.com/terraform/1.5.7/terraform_1.5.7_linux_amd64.zip
+      - unzip terraform.zip
+      - mv terraform /usr/local/bin/
+      - rm terraform.zip
+      - terraform --version
+
   pre_build:
     commands:
-      - echo "Listing files in the current directory:"
-      - pwd
-      - ls -la
+      - echo "Initializing Terraform"
+      - terraform init
+
   build:
-  commands:
-    - echo "Listing files in the 'terraform' directory:"
-    - ls -la terraform
-    - cd terraform
-    - terraform init
-    - terraform plan -out=tfplan
-    - terraform apply -auto-approve tfplan
+    commands:
+      - echo "Running Terraform commands"
+      # Add your Terraform commands below
+      # For example:
+      - terraform plan
+
+  post_build:
+    commands:
+      - echo "Terraform build completed successfully"
+
 artifacts:
-  files: ["**/**"]
+  files:
+    - '**/*'  # Adjust this to specify artifacts to upload, if any
