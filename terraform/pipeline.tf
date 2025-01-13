@@ -171,24 +171,7 @@ resource "aws_codebuild_project" "terraform_build" {
   service_role = aws_iam_role.codebuild_role.arn
 
   source {
-    type      = "CODEPIPELINE"
-    buildspec = <<-EOT
-      version: 0.2
-
-      phases:
-        pre_build:
-          commands:
-            - echo Initializing Terraform...
-            - terraform init
-        build:
-          commands:
-            - echo Running Terraform Plan...
-            - terraform plan -out=tfplan
-            - echo Applying Terraform Changes...
-            - terraform apply -auto-approve tfplan
-      artifacts:
-        files: []
-    EOT
+    type = "CODEPIPELINE"
   }
 
   environment {
@@ -239,8 +222,8 @@ resource "aws_iam_policy" "codepipeline_codebuild_access" {
     Version = "2012-10-17",
     Statement = [
       {
-        Effect = "Allow",
-        Action = "codebuild:StartBuild",
+        Effect   = "Allow",
+        Action   = "codebuild:StartBuild",
         Resource = "arn:aws:codebuild:us-east-1:185983175555:project/terraform-build"
       }
     ]
