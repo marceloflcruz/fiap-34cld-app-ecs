@@ -159,39 +159,11 @@ resource "aws_iam_role_policy_attachment" "codebuild_policy" {
   policy_arn = "arn:aws:iam::aws:policy/AdministratorAccess" # Use a least-privilege policy in production
 }
 
-resource "aws_iam_policy" "codepipeline_s3_access" {
-  name        = "CodePipelineS3Access"
-  description = "Allows CodePipeline to access specific S3 bucket"
-  
-  policy = jsonencode({
-    Version = "2012-10-17",
-    Statement = [
-      {
-        Effect = "Allow",
-        Action = [
-          "s3:PutObject",
-          "s3:GetObject",
-          "s3:ListBucket"
-        ],
-        Resource = [
-          "arn:aws:s3:::fiap-34cld-codepipeline-bucket",
-          "arn:aws:s3:::fiap-34cld-codepipeline-bucket/*"
-        ]
-      }
-    ]
-  })
-}
-
 
 # Attach Policies to CodePipeline Role
 resource "aws_iam_role_policy_attachment" "codepipeline_policy" {
   role       = aws_iam_role.codepipeline_role.name
   policy_arn = "arn:aws:iam::aws:policy/AWSCodePipeline_FullAccess"
-}
-
-resource "aws_iam_role_policy_attachment" "codepipeline_s3_policy_attachment" {
-  role       = aws_iam_role.codepipeline_role.name
-  policy_arn = aws_iam_policy.codepipeline_s3_access.arn
 }
 
 resource "aws_codebuild_project" "terraform_build" {
@@ -229,4 +201,53 @@ resource "aws_codebuild_project" "terraform_build" {
   artifacts {
     type = "CODEPIPELINE"
   }
+}
+
+resource "aws_iam_policy" "codepipeline_s3_policy" {
+  name        = "CodePipelineS3Policy"
+  description = "Allows CodePipeline to access specific S3 bucket"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject",
+          "s3:ListBucket"
+        ],
+        Resource = [
+          "arn:aws:s3:::fiap-34cld-codepipeline-bucket",
+          "arn:aws:s3:::fiap-34cld-codepipeline-bucket/*"
+        ]
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "codepipeline_s3_policy_attachment" {
+  role       = aws_iam_role.codepipeline_role.name
+  policy_arn = aws_iam_policy.codepipeline_s3_policy.arn
+}
+
+resource "aws_iam_policy" "codepipeline_codebuild_access" {
+  name        = "CodePipelineCodeBuildAccess"
+  description = "Allows CodePipeline to start builds in CodeBuild"
+
+  policy = jsonencode({
+    Version = "2012-10-17",
+    Statement = [
+      {
+        Effect = "Allow",
+        Action = "codebuild:StartBuild",
+        Resource = "arn:aws:codebuild:us-east-1:185983175555:project/terraform-build"
+      }
+    ]
+  })
+}
+
+resource "aws_iam_role_policy_attachment" "codepipeline_codebuild_policy_attachment" {
+  role       = aws_iam_role.codepipeline_role.name
+  policy_arn = aws_iam_policy.codepipeline_codebuild_access.arn
 }
