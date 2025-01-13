@@ -11,15 +11,18 @@ phases:
       - echo "Listing files in the current directory:"
       - pwd
       - ls -la
+  build:
+    commands:
+      - echo "Listing files in the current directory:"
+      - pwd
+      - ls -la
       - echo "running cd terraform"
       - cd terraform
       - echo "running terraform init"
       - terraform init
-  build:
-    commands:
       - echo "Running Terraform Plan..."
       - terraform plan -out=tfplan
-      - echo Applying Terraform Changes...
+      - echo "Applying Terraform Changes..."
       - terraform apply -auto-approve tfplan
 artifacts:
   files: []
