@@ -9,6 +9,7 @@ phases:
   pre_build:
     commands:
       - echo Initializing Terraform...
+      - cd terraform
       - terraform init
   build:
     commands:
