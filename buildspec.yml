@@ -8,12 +8,14 @@ phases:
       - unzip terraform_1.6.0_linux_amd64.zip -d /usr/local/bin/
   pre_build:
     commands:
-      - echo Initializing Terraform...
-      - cd terraform
+      - echo "Listing files in the current directory:"
+      - pwd
+      - ls -la
+      - echo "Initializing Terraform..."
       - terraform init
   build:
     commands:
-      - echo Running Terraform Plan...
+      - echo "Running Terraform Plan..."
       - terraform plan -out=tfplan
       - echo Applying Terraform Changes...
       - terraform apply -auto-approve tfplan
