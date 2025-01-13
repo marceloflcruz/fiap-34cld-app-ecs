@@ -14,14 +14,30 @@ resource "aws_s3_bucket_policy" "codepipeline_bucket_policy" {
     Version = "2012-10-17",
     Statement = [
       {
-        Sid       = "AllowCodePipelineAccess",
-        Effect    = "Allow",
+        Sid    = "AllowCodePipelineAccess",
+        Effect = "Allow",
         Principal = {
           Service = "codepipeline.amazonaws.com"
         },
-        Action    = [
+        Action = [
           "s3:GetObject",
           "s3:PutObject",
+          "s3:ListBucket"
+        ],
+        Resource = [
+          "${aws_s3_bucket.codepipeline_bucket.arn}",
+          "${aws_s3_bucket.codepipeline_bucket.arn}/*"
+        ]
+      },
+      {
+        Sid    = "AllowSpecificRoleAccess",
+        Effect = "Allow",
+        Principal = {
+          AWS = "arn:aws:iam::185983175555:role/codepipeline-role"
+        },
+        Action = [
+          "s3:PutObject",
+          "s3:GetObject",
           "s3:ListBucket"
         ],
         Resource = [
