@@ -6,24 +6,36 @@ resource "aws_ecs_cluster" "app_cluster" {
   name = "my-python-app-cluster"
 }
 
-resource "aws_launch_configuration" "ecs_launch_config" {
-  name          = "ecs-launch-configuration"
-  image_id      = "ami-0eeb03e72075b9bcc" # Amazon ECS-optimized Linux 2 AMI
+resource "aws_launch_template" "ecs_launch_template" {
+  name          = "ecs-launch-template"
+  image_id      = "ami-00510a0be518b7bcf" # Replace with ECS-optimized AMI ID
   instance_type = "t2.micro"
-  iam_instance_profile = aws_iam_instance_profile.ecs_instance_profile.name
-  security_groups      = [aws_security_group.ecs_sg.id]
-  user_data            = <<USER_DATA
-#!/bin/bash
-echo ECS_CLUSTER=${aws_ecs_cluster.app_cluster.name} >> /etc/ecs/ecs.config
-USER_DATA
+
+  iam_instance_profile {
+    name = aws_iam_instance_profile.ecs_instance_profile.name
+  }
+
+  network_interfaces {
+    security_groups = [aws_security_group.ecs_sg.id]
+  }
+
+  user_data = base64encode(<<-EOF
+    #!/bin/bash
+    echo ECS_CLUSTER=${aws_ecs_cluster.app_cluster.name} >> /etc/ecs/ecs.config
+  EOF
+  )
 }
 
+
 resource "aws_autoscaling_group" "ecs_asg" {
-  launch_configuration = aws_launch_configuration.ecs_launch_config.name
-  min_size             = 1
-  max_size             = 2
-  desired_capacity     = 1
-  vpc_zone_identifier  = ["REPLACE_WITH_SUBNET_ID"]
+  launch_template {
+    id      = aws_launch_template.ecs_launch_template.id
+    version = "$Latest"
+  }
+  min_size            = 1
+  max_size            = 2
+  desired_capacity    = 1
+  vpc_zone_identifier = ["subnet-0afc07826f7018f34"] # Replace with your subnet ID
 }
 
 resource "aws_iam_role" "ecs_instance_role" {
@@ -32,8 +44,8 @@ resource "aws_iam_role" "ecs_instance_role" {
   assume_role_policy = jsonencode({
     Version = "2012-10-17"
     Statement = [{
-      Action    = "sts:AssumeRole"
-      Effect    = "Allow"
+      Action = "sts:AssumeRole"
+      Effect = "Allow"
       Principal = {
         Service = "ec2.amazonaws.com"
       }
@@ -47,9 +59,9 @@ resource "aws_iam_instance_profile" "ecs_instance_profile" {
 }
 
 resource "aws_security_group" "ecs_sg" {
-  name        = "ecs-sg"
+  name        = "fiap-ecs-sg"
   description = "Allow inbound traffic for ECS services"
-  vpc_id      = "REPLACE_WITH_VPC_ID"
+  vpc_id      = "vpc-0ccf4f582dae3892f"
 
   ingress {
     from_port   = 5000
