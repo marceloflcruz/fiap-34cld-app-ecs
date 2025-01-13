@@ -11,7 +11,9 @@ phases:
       - echo "Listing files in the current directory:"
       - pwd
       - ls -la
-      - echo "Initializing Terraform..."
+      - echo "running cd terraform"
+      - cd terraform
+      - echo "running terraform init"
       - terraform init
   build:
     commands:
