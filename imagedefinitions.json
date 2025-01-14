@@ -1,7 +1,0 @@
-[
-    {
-      "name": "my-python-app",
-      "image": "REPLACE_WITH_ECR_IMAGE_URL"
-    }
-  ]
-  
