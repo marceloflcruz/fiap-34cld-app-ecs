@@ -6,7 +6,7 @@ phases:
       docker: latest
     commands:
       - echo Installing dependencies...
-      - apt-get update && apt-get install -y jq unzip # Replace `apt-get` if Alpine Linux is used
+      - sudo apt-get update && apt-get install -y jq unzip # Replace `apt-get` if Alpine Linux is used
       - echo Installing Terraform...
       - curl -LO https://releases.hashicorp.com/terraform/1.5.5/terraform_1.5.5_linux_amd64.zip # Replace with the required version
       - unzip terraform_1.5.5_linux_amd64.zip
