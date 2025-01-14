@@ -6,7 +6,7 @@ phases:
       python: 3.x
     commands:
       - echo Installing dependencies...
-      - yum update -y && yum install -y jq unzip
+      - apt-get update && apt-get install -y --no-install-recommends jq unzip curl
       - echo Installing Terraform...
       - curl -LO https://releases.hashicorp.com/terraform/1.5.5/terraform_1.5.5_linux_amd64.zip # Replace with the required version
       - unzip terraform_1.5.5_linux_amd64.zip
