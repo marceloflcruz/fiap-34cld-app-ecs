@@ -77,6 +77,9 @@ resource "aws_security_group" "ecs_sg" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+resource "aws_ecr_repository" "app_repository" {
+  name = "my-python-app"
+}
 
 resource "aws_ecs_task_definition" "app_task" {
   family                   = "my-python-app-task"
@@ -88,8 +91,8 @@ resource "aws_ecs_task_definition" "app_task" {
 
   container_definitions = jsonencode([
     {
-      name      = "my-python-app"
-      image     = "REPLACE_WITH_ECR_IMAGE_URL"
+      name  = "my-python-app"
+      image = "${aws_ecr_repository.app_repository.repository_url}:latest"
       essential = true
       portMappings = [
         {
