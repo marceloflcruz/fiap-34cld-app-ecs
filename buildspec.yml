@@ -4,10 +4,12 @@ phases:
   install:
     commands:
       - echo "Installing dependencies..."
-      - apk add --no-cache bash curl jq unzip docker terraform
-      - echo "Verifying installations..."
+      - apk add --no-cache bash curl jq unzip docker
+      - echo "Installing Terraform..."
+      - curl -LO https://releases.hashicorp.com/terraform/1.5.5/terraform_1.5.5_linux_amd64.zip
+      - unzip terraform_1.5.5_linux_amd64.zip
+      - mv terraform /usr/local/bin/
       - terraform --version
-      - docker --version
   pre_build:
     commands:
       - echo "Initializing Terraform..."
@@ -20,4 +22,17 @@ phases:
     commands:
       - echo "Building Docker image..."
       - docker build -t $REPO_NAME:$IMAGE_TAG .
-      - docker tag $REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$REP
+      - docker tag $REPO_NAME:$IMAGE_TAG $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$REPO_NAME:$IMAGE_TAG
+      - echo "Running Terraform plan..."
+      - terraform plan -out=tfplan
+  post_build:
+    commands:
+      - echo "Pushing Docker image to Amazon ECR..."
+      - docker push $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$REPO_NAME:$IMAGE_TAG
+      - echo "Applying Terraform changes..."
+      - terraform apply -auto-approve tfplan
+      - echo "Writing image definitions file..."
+      - printf '[{"name":"%s","imageUri":"%s"}]' $REPO_NAME $AWS_ACCOUNT_ID.dkr.ecr.$AWS_DEFAULT_REGION.amazonaws.com/$REPO_NAME:$IMAGE_TAG > imagedefinitions.json
+artifacts:
+  files:
+    - imagedefinitions.json
