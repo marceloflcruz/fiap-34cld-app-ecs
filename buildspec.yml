@@ -4,12 +4,11 @@ phases:
   install:
     commands:
       - echo "Installing dependencies..."
-      - apk add --no-cache bash curl jq unzip docker libc6-compat
-      - echo "Installing AWS CLI..."
-      - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
-      - unzip -q awscliv2.zip
-      - ./aws/install --bin-dir /usr/local/bin --install-dir /usr/local/aws-cli --update
-      - /usr/local/bin/aws --version
+      - apk add --no-cache bash curl jq unzip docker
+      - echo "Installing AWS CLI v1..."
+      - apk add --no-cache python3 py3-pip
+      - pip3 install awscli
+      - aws --version
       - echo "Installing Terraform..."
       - rm -rf terraform
       - curl -LO https://releases.hashicorp.com/terraform/1.5.5/terraform_1.5.5_linux_amd64.zip
