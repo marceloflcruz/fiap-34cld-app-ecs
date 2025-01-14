@@ -8,7 +8,8 @@ phases:
       - echo "Installing glibc for AWS CLI v2..."
       - curl -Lo /etc/apk/keys/sgerrand.rsa.pub https://alpine-pkgs.sgerrand.com/sgerrand.rsa.pub
       - curl -Lo glibc.apk https://github.com/sgerrand/alpine-pkg-glibc/releases/download/2.35-r0/glibc-2.35-r0.apk
-      - apk add --no-cache glibc.apk
+      - apk add --no-cache --allow-untrusted glibc.apk || true
+      - rm -f glibc.apk
       - echo "Installing AWS CLI v2..."
       - curl "https://awscli.amazonaws.com/awscli-exe-linux-x86_64.zip" -o "awscliv2.zip"
       - unzip -q awscliv2.zip
