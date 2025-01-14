@@ -1,22 +1,19 @@
-# Use the minimal Python 3.9 slim image
-FROM python:3.9-slim
+# Use the official Python 3.9 Alpine base image
+FROM python:3.9-alpine
 
 # Set the working directory in the container
 WORKDIR /app
 
-# Install dependencies (if any system-level packages are required)
-# Note: Replace <package-name> with necessary system-level dependencies
-RUN apt-get update && apt-get install -y --no-install-recommends \
+# Install required system dependencies and Python packages
+RUN apk add --no-cache \
+    bash \
     curl \
-    gcc \
-    libssl-dev \
-    && rm -rf /var/lib/apt/lists/*
+    jq \
+    docker \
+    terraform \
+    && pip install --no-cache-dir -r requirements.txt
 
-# Copy the application code to the container
+# Copy the application code into the container
 COPY . .
 
-# Install Python dependencies
-RUN pip install --no-cache-dir -r requirements.txt
-
-# Set the entry point for the application
-CMD ["python", "app.py"]
+# Set the default command to run the applica
